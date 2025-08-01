@@ -1,0 +1,15 @@
+{
+  "name": "alice",
+  "version": "1.0.0",
+  "description": "Personal AI assistant that learns from you and helps you.",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build", 
+    "preview": "vite preview --host" 
+  },
+  "author": "Ole Martin Gjersvik",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^7.0.6"
+  }
+}

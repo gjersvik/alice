@@ -4,7 +4,7 @@ Personal AI assistant that learns from you and helps you.
 ## Getting Started
 
 This is currently a frontend-only app using Vite. Run it with:
-`npm run dev`
+`npm install` and `npm run dev`
 
 ## Current Status
 Not even an idea—more like the idea of an idea.
