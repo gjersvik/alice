@@ -4,12 +4,15 @@
   "description": "Personal AI assistant that learns from you and helps you.",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build", 
-    "preview": "vite preview --host" 
+    "build": "vite build",
+    "preview": "vite preview --host"
   },
   "author": "Ole Martin Gjersvik",
   "license": "MIT",
   "devDependencies": {
     "vite": "^7.0.6"
+  },
+  "dependencies": {
+    "@awesome.me/webawesome": "^3.0.0-beta.3"
   }
 }
