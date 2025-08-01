@@ -4,9 +4,12 @@ export type State = {
     loader: loader.State;
 };
 
-export const INITIAL_STATE: State = {
-    loader: loader.INITIAL_STATE
-};
+export function initState(): [State, Command[]] {
+    const [loaderState, loaderCommands] = loader.initState();
+    return [{
+        loader: loaderState
+    }, loaderCommands];
+}
 
 export type Msg<N extends string, P = undefined> = P extends undefined
     ? { type: N }
@@ -21,7 +24,7 @@ export function loaderAction(action: loader.Action): Action{
     }
 }
 
-export type Command = () => AsyncIterable<Action>;
+export type Command = (dispatch: (Action) => void) => void;
 
 export function reducer(state: State, action: Action): Command[] {
     switch (action.type) {

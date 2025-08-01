@@ -6,13 +6,20 @@
     </head>
     <body>
         <a-app>
-            <p>Just some dev tools open dev console the magic happens there.</p>
+            <a-loader>
+                <wa-dialog open="true" withoutHeader="true">
+                    <div class="wa-stack">
+                        <p>Welcome to Alice your personal assistant.</p>
+                        <p>Right we only suport local lanuage model.</p>
+                        <wa-button data-load>Download and Load 2.5 Gig lanuage model</wa-button>
+                        <wa-progress-bar data-bar></wa-progress-bar>
+                        <p data-status></p>
+                    </div>
+                </wa-dialog>
+            </a-loader>
+            <h3>Noting to see here yet but your model is cached for next time.</h3>
 
             <wa-button id="list">List supported models to console.</wa-button>
-            
-            <wa-button id="load">Test load a llm model.</wa-button>
-
-            <wa-button id="unload">Remove model from cache.</wa-button>
         </a-app>
     </body>
 </html>

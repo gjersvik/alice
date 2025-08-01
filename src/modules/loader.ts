@@ -2,66 +2,72 @@ import * as main from "../state";
 import { Msg, Command } from "../state";
 
 import * as webllm from "../services/webllm";
+import { StateComponent } from "../components";
+import WaDialog from "@awesome.me/webawesome/dist/components/dialog/dialog.js";
+import WaButton from "@awesome.me/webawesome/dist/components/button/button.js";
+import WaProgressBar from "@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js";
 
 export type State = {
     loaded: boolean;
+    loading: boolean;
     cached: boolean;
     progress: number; // 0-1 
     loadMessage: string;
 }
 
+export function initState(): [State, Command[]] {
+    return [{
+        loaded: false,
+        loading: false,
+        cached: false,
+        progress: 0,
+        loadMessage: ''
+    }, [async function (dispatch: (Action) => void) {
+                dispatch(modelInCache(await webllm.inCache()));}]];
+}
+
 export const INITIAL_STATE = {
     loaded: false,
+    loading: false,
     cached: false,
     progress: 0,
     loadMessage: ''
 }
 
 export type Action = 
-    Msg<'CheckCache'> |
     Msg<'ModelInCache', boolean> |
     Msg<'LoadModel'> |
     Msg<'LoadEvent', {progress: number, text: string}> |
     Msg<'LoadDone'>;
 
-export function checkCache(): main.Action {
-    return main.loaderAction({ type: 'CheckCache' });
-}
-
-export function modelInCache(cached: boolean): main.Action {
+function modelInCache(cached: boolean): main.Action {
     return main.loaderAction({ type: 'ModelInCache', payload: cached });
 }
 
-export function loadModel(): main.Action {
+function loadModel(): main.Action {
     return main.loaderAction({ type: 'LoadModel' });
 }
 
-export function loadEvent(progress: number, text: string): main.Action {
+function loadEvent(progress: number, text: string): main.Action {
     return main.loaderAction({ type: 'LoadEvent', payload: { progress, text } });
 }
 
-export function loadDone(): main.Action {
+function loadDone(): main.Action {
     return main.loaderAction({ type: 'LoadDone' });
 }
 
 export function reducer(state: State, action: Action): Command[] {
     switch (action.type) {
-        case 'CheckCache':
-            return [async function* () {
-                for await (const cached of webllm.inCache()) {
-                    yield modelInCache(cached);
-                }
-                yield loadDone();
-            }];
         case "ModelInCache":
             state.cached = action.payload;
             return [];
         case "LoadModel":
-            return [async function* () {
-                for await (const progress of webllm.load()) {
-                    yield loadEvent(progress.progress, progress.text ?? "");
-                }
-                yield loadDone();
+            state.loading = true;
+            return [async function (dispatch: (Action) => void) {
+                await webllm.load(progress => {
+                    dispatch(loadEvent(progress.progress, progress.text ?? ""));
+                });
+                dispatch(loadDone());
             }];
         case "LoadEvent":
             state.progress = action.payload.progress;
@@ -73,3 +79,74 @@ export function reducer(state: State, action: Action): Command[] {
     }
 }
 
+class LoaderComponent extends StateComponent{
+    private canClose: boolean = false;
+    private running: boolean = false;
+    private dialog: WaDialog | null = null;
+    private loadButton: WaButton | null = null;
+    private progressBar: WaProgressBar | null = null;
+    private statusText: HTMLElement | null = null;
+
+    connectedCallback(): void {
+        super.connectedCallback();
+
+        this.dialog = this.querySelector('wa-dialog');
+        if (!this.dialog) {
+            console.warn("LoaderComponent: No wa-dialog found in the component.");
+            return;
+        }
+
+        this.dialog.addEventListener('wa-hide', e => {
+            console.log("Dialog hide event triggered.");
+            if (this.canClose === false) {
+                e.preventDefault();
+            }
+        });
+
+        this.progressBar = this.querySelector('[data-bar]');
+        if (!this.progressBar) {
+            console.warn("LoaderComponent: No progress bar found in the component.");
+            return;
+        }
+
+        this.statusText = this.querySelector('[data-status]');
+        if (!this.statusText) {
+            console.warn("LoaderComponent: No status text element found in the component.");
+            return;
+        }
+
+        this.loadButton = this.querySelector('[data-load]');
+        if (!this.loadButton) {
+            console.warn("LoaderComponent: No load button found in the component.");
+            return;
+        }
+
+        this.loadButton.addEventListener('click', () => {
+            if (this.running) {
+                console.warn("LoaderComponent: Load operation is already running.");
+                return;
+            }
+            this.dispatch(loadModel());
+        });
+    }
+
+    render(state: main.State): void {
+        let loaderState = state.loader;
+        this.running = loaderState.loading;
+        this.canClose = loaderState.loaded;
+
+        this.loadButton!.disabled = this.running;
+        this.loadButton!.textContent = loaderState.cached ? 
+            "Load 2.5 Gig lanuage model" :
+            "Download and Load 2.5 Gig lanuage model";
+        
+        this.progressBar!.value = loaderState.progress * 100;
+        this.statusText!.textContent = loaderState.loadMessage;
+
+        this.dialog!.open = !loaderState.loaded;
+
+        this.renderChildren(state);
+    }
+}
+
+customElements.define('a-loader', LoaderComponent);
