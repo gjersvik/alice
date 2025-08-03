@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@awesome.me/webawesome": "^3.0.0-beta.3",
-    "@mlc-ai/web-llm": "^0.2.79"
+    "@mlc-ai/web-llm": "^0.2.79",
+    "ts-chan": "^0.6.0"
   }
 }
