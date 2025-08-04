@@ -24,7 +24,7 @@ export function loaderAction(action: loader.Action): Action{
     }
 }
 
-export type Command = (dispatch: (Action) => void) => void;
+export type Command = (dispatch: (Action) => Promise<void>) => void;
 
 export function reducer(state: State, action: Action): Command[] {
     switch (action.type) {
