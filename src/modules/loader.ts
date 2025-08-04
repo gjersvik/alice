@@ -1,11 +1,11 @@
 import * as main from "../state";
-import { Msg, Command } from "../state";
+import { Msg } from "../state";
 
-import * as webllm from "../services/webllm";
 import { StateComponent } from "../components";
 import WaDialog from "@awesome.me/webawesome/dist/components/dialog/dialog.js";
 import WaButton from "@awesome.me/webawesome/dist/components/button/button.js";
 import WaProgressBar from "@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js";
+import { Command } from "../command";
 
 export type State = {
     loaded: boolean;
@@ -15,15 +15,21 @@ export type State = {
     loadMessage: string;
 }
 
-export function initState(): [State, Command[]] {
-    return [{
+export function initState(): State {
+    return {
         loaded: false,
         loading: false,
         cached: false,
         progress: 0,
         loadMessage: ''
-    }, [async function (dispatch: (Action) => void) {
-                dispatch(modelInCache(await webllm.inCache()));}]];
+    }
+}
+
+export function initCommands(): Command[] {
+    return [{
+        type: "WebLLM_isInCache",
+        complete: (running: boolean) => [modelInCache(running)]
+    }]
 }
 
 export const INITIAL_STATE = {
@@ -62,13 +68,7 @@ export function reducer(state: State, action: Action): Command[] {
             state.cached = action.payload;
             return [];
         case "LoadModel":
-            state.loading = true;
-            return [async function (dispatch: (Action) => void) {
-                await webllm.load(progress => {
-                    dispatch(loadEvent(progress.progress, progress.text ?? ""));
-                });
-                dispatch(loadDone());
-            }];
+            return reduseLoadModel(state);
         case "LoadEvent":
             state.progress = action.payload.progress;
             state.loadMessage = action.payload.text;
@@ -77,6 +77,15 @@ export function reducer(state: State, action: Action): Command[] {
             state.loaded = true;
             return [];
     }
+}
+
+function reduseLoadModel(state: State): Command[] {
+    state.loading = true;
+    return [{
+        type: "WebLLM_loadModel",
+        onProgress: (progress) => [loadEvent(progress.progress, progress.text)],
+        complete: () => [loadDone()]
+    }]
 }
 
 class LoaderComponent extends StateComponent{

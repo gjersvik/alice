@@ -4,25 +4,21 @@ import '@awesome.me/webawesome/dist/components/dialog/dialog.js';
 import '@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js';
 
 import * as webllm from '@mlc-ai/web-llm';
-import { Action, Command, initState, reducer, State } from './state';
+import { Action, initCommands, initState, reducer } from './state';
 import { ACTION_EVENT, StateComponent } from './components';
 import Channel from './channel';
+import Commander from './command';
 
 
 export default class App extends StateComponent {}
 customElements.define('a-app', App);
 
 async function main() {
-    let [state, commands] = initState();
-
     let uiChannel = new Channel<Action>();
     let backendChannel = new Channel<Action>(16);
 
-    const dispatch = backendChannel.send.bind(backendChannel);
-
-    commands.forEach(cmd => {
-        cmd(dispatch);
-    });
+    const commander = new Commander(backendChannel);
+    commander.run(initCommands());
 
     const app = document.querySelector('a-app') as App;
     if (!app) {
@@ -34,6 +30,7 @@ async function main() {
         uiChannel.trySend(action);
     });
 
+    let state = initState();
     app.render(state);
 
     const list = document.getElementById('list');
@@ -53,11 +50,10 @@ async function main() {
 
         let actionCount = 0;
         let action: Action | undefined;
-        let commands: Command[] = [];
 
         // Process actions from the UI channel
         while ((action = uiChannel.tryRecv())) {
-            commands.push(...reducer(state, action));
+            commander.run(reducer(state, action));
             actionCount++;
         }
 
@@ -67,13 +63,8 @@ async function main() {
 
         // While we have proccessed less than 16 actions, we can process backend actions
         while (actionCount < 16 && (action = backendChannel.tryRecv())) {
-            commands.push(...reducer(state, action));
+            commander.run(reducer(state, action));
             actionCount++;
-        }
-
-        // Dispatch commands
-        for (const cmd of commands) {
-            cmd(dispatch);
         }
 
         // Render the updated state

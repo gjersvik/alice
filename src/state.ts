@@ -1,14 +1,18 @@
+import { Command } from "./command";
 import * as loader from "./modules/loader";
 
 export type State = {
     loader: loader.State;
 };
 
-export function initState(): [State, Command[]] {
-    const [loaderState, loaderCommands] = loader.initState();
-    return [{
-        loader: loaderState
-    }, loaderCommands];
+export function initState(): State {
+    return {
+        loader: loader.initState()
+    };
+}
+
+export function initCommands(): Command[] {
+    return loader.initCommands();
 }
 
 export type Msg<N extends string, P = undefined> = P extends undefined
@@ -23,8 +27,6 @@ export function loaderAction(action: loader.Action): Action{
         payload: action
     }
 }
-
-export type Command = (dispatch: (Action) => Promise<void>) => void;
 
 export function reducer(state: State, action: Action): Command[] {
     switch (action.type) {
