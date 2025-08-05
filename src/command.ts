@@ -3,12 +3,12 @@ import { Action } from "./state"
 import WebLLM, { ProcessReport } from "./services/webllm";
 
 export type WebLLMisInCacheCommand = {
-    type: "WebLLM_isInCache";
+    type: "WebLlmIsInCache";
     complete: (running: boolean) => Action[];
 };
 
 export type WebLLMLoadModelCommand = {
-    type: "WebLLM_loadModel";
+    type: "WebLlmLoadModel";
     onProgress: (progress: ProcessReport) => Action[];
     complete: () => Action[];
 };
@@ -74,10 +74,10 @@ export default class Commander{
 
     async runCommand(command: Command): Promise<void> {
         switch (command.type) {
-            case "WebLLM_isInCache":
+            case "WebLlmIsInCache":
                 await this.webLlmIsInCache(command);
                 return;
-            case "WebLLM_loadModel":
+            case "WebLlmLoadModel":
                 await this.webLlmLoadModel(command);
                 return;
             case "WebLlmChatCompletion": {

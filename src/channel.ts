@@ -41,17 +41,38 @@ export default class Channel<T> {
             if (this.closed) throw new Error("Channel closed");
             await new Promise<void>(resolve => this.recvResolvers.push(resolve));
         }
-        return this.buffer.shift()!;
+        let item = this.buffer.shift();
+        this.notifySend();
+        return item!;
     }
 
     tryRecv(): T | undefined {
         if (this.buffer.length === 0) return undefined;
-        return this.buffer.shift();
+        let item = this.buffer.shift();
+        this.notifySend();
+        return item;
     }
 
     async wait(): Promise<void> {
         if (this.buffer.length > 0) return;
         await new Promise<void>(resolve => this.recvResolvers.push(resolve));
+    }
+
+    /* Take up to max items from the channel.
+     * If max is not specified, take all items.
+     * Returns an array of items.
+     * If the channel is closed, it will return all items in the buffer.
+     *  If the channel is empty, it will return an empty array.
+     */
+    drain(max?: number | undefined): T[] {
+        if (this.closed && this.buffer.length === 0) return [];
+        if (max === undefined || max > this.buffer.length) {
+            max = this.buffer.length;
+        }
+        let items = this.buffer.slice(0, max);
+        this.buffer = this.buffer.slice(max);
+        this.notifySend();
+        return items;
     }
 
     close() {
