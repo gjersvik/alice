@@ -18,7 +18,7 @@ export function initState(): State {
         loader: loader.initState(),
         chat_log: [{
             role: 'system',
-            content: 'You are a helpful assistant. Please answer the user\'s questions to the best of your ability. Reply using markdown formatting when appropriate.'
+            content: 'You are a helpful assistant. Please answer the user\'s questions to the best of your ability. Reply using markdown.'
         }],
         chat_stream: '',
         chat_input: ''
@@ -62,9 +62,12 @@ export function reducer(state: State, action: Action): Command[] {
             state.chat_log.push({ role: 'user', content: state.chat_input });
             state.chat_input = '';
             state.chat_stream = '';
-            // TODO: Send to backend for now we will just add dummy response
-            state.chat_log.push({ role: 'assistant', content: 'This is a dummy response. I have no backend code.' });
-            return [];
+            return [{
+                type: 'WebLlmChatCompletion',
+                messagges: state.chat_log,
+                chunk: (message: string) => [{ type: 'AiStream', chunk: message }],
+                complete: (message: string) => [{ type: 'AiMessage', message }]
+            }];
         case 'AiStream':
             state.chat_stream += action.chunk;
             return [];

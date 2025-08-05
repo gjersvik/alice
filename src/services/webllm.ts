@@ -44,6 +44,21 @@ export default class WebLLM {
         await this.model.reload(MODEL);
         this.prosessCallBack = null; // Clear callback after loading
     }
+
+    async chatCompletion(messages: { role: 'user' | 'assistant' | 'system'; content: string }[], onChunk: (message: string) => void): Promise<string> {
+        const chunks = await this.model.chat.completions.create({
+            messages: messages,
+            temperature: 0.7,
+            stream: true});
+        
+        for await (const chunk of chunks) {
+            if (chunk.choices.length > 0 && chunk.choices[0].delta.content) {
+                onChunk(chunk.choices[0].delta.content);
+            }
+        }
+
+        return await this.model.getMessage();
+    }
 }
 
 const MODEL = "Phi-3.5-mini-instruct-q4f16_1-MLC"
