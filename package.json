@@ -10,11 +10,14 @@
   "author": "Ole Martin Gjersvik",
   "license": "MIT",
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
     "vite": "^7.0.6"
   },
   "dependencies": {
     "@awesome.me/webawesome": "^3.0.0-beta.3",
     "@mlc-ai/web-llm": "^0.2.79",
-    "lit": "^3.3.1"
+    "dompurify": "^3.2.6",
+    "lit": "^3.3.1",
+    "marked": "^16.1.2"
   }
 }

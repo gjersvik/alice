@@ -1,6 +1,7 @@
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/scroller/scroller.js';
 import '@awesome.me/webawesome/dist/components/textarea/textarea.js';
+import './message';
 
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -59,24 +60,6 @@ export class ChatElement extends LitElement {
                         this.dispatch({ type: 'UserSend' });
                     }}
                 >Send</wa-button>
-            </div>
-        `;
-    }
-}
-
-@customElement('a-message')
-export class Message extends LitElement {
-
-    @property({type: String})
-    accessor role: 'user' | 'assistant' | 'system' = 'user';
-
-    @property({type: String})
-    accessor content: string = '';
-
-    protected render(): unknown {
-        return html`
-            <div>
-                <strong>${this.role}:</strong> ${this.content}
             </div>
         `;
     }
