@@ -3,14 +3,37 @@ import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/dialog/dialog.js';
 import '@awesome.me/webawesome/dist/components/progress-bar/progress-bar.js';
 
+import './view/chat';
+
 import * as webllm from '@mlc-ai/web-llm';
-import { Action, initCommands, initState, reducer } from './state';
+import { Action, initCommands, initState, reducer, State } from './state';
 import { ACTION_EVENT, StateComponent } from './components';
 import Channel from './channel';
 import Commander from './command';
+import { ChatElement } from './view/chat';
 
 
-export default class App extends StateComponent {}
+export default class App extends StateComponent {
+    private chat: ChatElement | null = null;
+
+    connectedCallback(): void {
+        super.connectedCallback();
+    }
+
+    public render(state: State): void {
+        if (!this.chat) {
+            this.chat = new ChatElement();
+            this.chat.state = state;
+            this.chat.dispatch = (action: Action) => this.dispatch(action);
+            this.appendChild(this.chat);
+        } else {
+            this.chat.state = state;
+        }
+        this.chat.requestUpdate('state');
+
+        super.render(state);
+    }
+}
 customElements.define('a-app', App);
 
 async function main() {
@@ -32,11 +55,6 @@ async function main() {
 
     let state = initState();
     app.render(state);
-
-    const list = document.getElementById('list');
-    list?.addEventListener('click', e => {
-        console.log(webllm.prebuiltAppConfig.model_list)
-    })
 
     while (true) {
         // Wait for next action
@@ -72,4 +90,4 @@ async function main() {
     }
 }
 
-main().catch( e => console.log("Main exception:", e) );
+main().catch( e => console.error("Main exception:", e) );
