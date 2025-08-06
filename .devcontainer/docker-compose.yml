@@ -1,0 +1,20 @@
+name: alice-dev
+services:
+  alice:
+    image: mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm
+    volumes:
+      - ..:/workspace:cached  # Mount project root to /workspace
+    working_dir: /workspace
+    command: sleep infinity
+
+  surrealdb:
+    build:
+      context: .
+      dockerfile: surrealdb.dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - surrealdb-data:/mydata
+    
+volumes:
+  surrealdb-data:
