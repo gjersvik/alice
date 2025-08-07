@@ -1,6 +1,7 @@
 import Channel from "./channel";
 import { Action } from "./state"
 import WebLLM, { ProcessReport } from "./services/webllm";
+import Surreal from "./services/surreal";
 
 export type WebLLMisInCacheCommand = {
     type: "WebLlmIsInCache";
@@ -35,6 +36,9 @@ export default class Commander{
         this.backendChannel = backendChannel;
 
         // Start servcies by getting instances
+        Surreal.getInstance().catch(err => {
+            console.error("Failed to initialize SurrealDB service:", err);
+        });
         WebLLM.getInstance().catch(err => {
             console.error("Failed to initialize WebLLM service:", err);
         });
