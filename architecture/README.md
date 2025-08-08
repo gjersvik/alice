@@ -6,99 +6,99 @@ We should not write architecture documents for what is over the horizon. Only fo
 
 Also, architecture is a direction, not a target. So this document will change when the goals, focus, or technology changes.
 
-## Sub pages
-- [Roadmap](./Roadmap.md) - The short-term roadmap for Alice.
+## What is Alice? User perspective.
+Alice is a personal AI agent that earns your trust by focusing on:
+
+* The user is in control—this is YOUR assistant. Not a shareholder-owned one that pretends.
+* Private by default. The data is yours. You decide where you want to go on the privacy vs convenience spectrum. And when. Not all your data is the same.
+* Run it your way. In the browser, on your computer or private server. Or connect to a company backend. Or even from the shareholder-owned service.
+* Transparent and understandable. You can see what is going on, why it is doing something, and how it works. No secrets.
+
+## What is Alice? System perspective.
+Alice is a data management, log processing, and configuration system that sometimes helps users.
+
+Privacy, configurability and transparency are more core to the system than the LLM it connects to or runs. There will be no Config module or Privacy module or Log module. These are core concerns that permeate the entire system and its design and architecture.
+
+Remember an overwhelmed, confused and scared user is not empowered. They are not in control. We are not earning their trust. We let users make informed choices (based on their level of understanding), where saying no is always a valid option.
+
+## Technical architecture.
+Alice has four main systems and 2 common services:
+
+1. **AI Agent** - Your bog standard simplistic LLM powered AI agent.
+2. **Knowledge Base** - GraphRAG, a knowledge base that stores what Alice knows.
+3. **Workflow Engine** - The core system that manages any multi-step tasks and workflows.
+4. **Integration Layer** - Connects the workflow engine to external actions and events.
+5. **LLM Service** - A local or remote service that manages LLM access.
+6. **Data Service** - SurrealDB or similar, allows the other systems to persist data.
+
+Most of the code should not know if it's running in the browser or on a server. An agent is an atomic unit and should not share data with other agents. So the backend can just be a routing layer to the right isolated agent. The rest of the code can just focus on a single agent and its data.
+
+### AI Agent.
+The normal LLM agent features like adding, editing, and deleting messages and so on.
+I am hesitant to make it too powerful, with MCP interactions. It's supposed to be subservient to the Workflow engine.
+
+Requirements and wants:
+- It should be more like a colleague than the normal question answering agent.
+- Have a seemingly endless chatlog just as your colleagues on Slack or Teams.
+- It should be possible to open up a message and see why this answer was given.
+- The agent shuld be system aware and able to answer questions about itself.
+
+### Knowledge Base.
+The knowledge base is just as much for the user as it is for the LLM. So a big blob of vectors is not going to cut it.
+
+We will start as a simple knowledge graph and full text search of backlog.
+But the goal is to implement a full GraphRAG system.
+
+Requirements and wants:
+- The user should be able to see what Agent knows about them.
+- The user should be able to edit and delete what Agent knows about them.
+- The LLM should be able to access the knowledge base to answer questions.
+- Should be able to learn from the chat log and files.
+
+### Workflow Engine.
+This is the core of Alice. And will mostly be split up into multiple modules. The workflow engine is responsible for:
+- Store and run the user/agent created workflows.
+- The internal workflows like generating chat, updating the knowledge base, and so on.
+- Track all the logs and events that happen and map them to the workflows and tasks.
+- Make sure metadata rules are followed and enforced.
+- Store and enforce behavior rules for the agent and workflows.
+
+Requirements and wants:
+- Both the user and the agent should be able to create workflows.
+- User must be able to review and edit workflows before they are run.
+- Should be able, with LLM help, to propose fixes to broken workflows.
+
+### Integration Layer.
+Have not thought this through yet. But it should be able to connect to external services and events. And be able to trigger workflows based on these events.
+
+### LLM Service.
+This is the service that schedules and manages the LLM calls. That can be local or remote.
+
+This is mainly a scheduling and management service. To make sure that the local or remote LLM is not overloaded.
+
+### Data Service.
+It's a database. Both the simplest and most complex part of the system. Even if it's not the database's job, we need to make sure that the data flow between browser and server is simple to sync.
+
 - [Data Strategy](./data-strategy.md) - How we will handle data in Alice.
 
-## High level vision and goals.
-Alice is a personal AI assistant that reacts to events and proposes solutions. These may run as one-off or repeatable tasks. You can also chat with it and teach it your context. It will learn from your conversations and use that to help you.
+## Roadmap.
+I can see three different futures for Alice that build on each other.
 
-From an architecture vision, there are a few goals and guiding principles that we will follow.
+1. **Experimental**: I am just trying to scratch my own itch.
+2. **Prototype at work**: Share with my team at work and have it as team assistant.
+3. **It's out there**: Maybe, just maybe, it grows into a product that others can use.
 
-* Local first.
-* Private by default.
-* Run it your way.
+### Experimental.
+The main focus is just to get something working. Test out the ideas and see if they work. And be useful to me. I as the developer am already perfectly empowered and do not need any help with configuration or information about what is going on.
 
-The big keyword is TRUST. We must build a system that the user can trust and feel in control at all times.
+But it's important to keep the architecture in mind, so I do not paint myself into a corner. So that privacy, configuration, and transparency have a path to follow.
 
-### Local first.
-Alice should be fully functional in the browser, not connected to any backend or service.
+- [Dogfooding (Current)](./Dogfooding.md) - Implementing the minimum to make Alice useful to me as a developer.
 
-The user can choose to run a backend or connect to one, which will unlock more features like higher performance, and running tasks and learning in the background when the user is offline.
+### Prototype at work.
+As the users will be highly technical individuals who are familiar with the developer, the configuration and transparency layers can be implemented, but do not sweat it. The focus is on making Alice useful to the team and helping them with their tasks.
 
-Even if configured with a backend, Alice should still be able to function when offline.
+But now is the time to add all the scaffolding and underlying patterns that will enable us to deliver on the architecture vision. This is the time to build the foundation for the future.
 
-### Private by default.
-The user must be in full control of their data. And not in the "you accept our terms and conditions or we delete your account" way. Every step needs to be an informed consent, with a real choice to say no.
-
-The default must be everything is private. Only when users explicitly choose to share data, will it be shared. That includes tracking and analytics.
-
-Also, if the user wants to trade privacy for performance or convenience, that is their choice. But it must be a clear and informed choice.
-
-### Run it your way.
-Any reasonable tech-savvy person should be able to install and operate the Alice backend and integrate it with their own services. This drags the architecture towards a modular monolith, where there are only a handful of services that need to run.
-
-More complex setups should also be possible.
-
-## Configuration and extensibility.
-As the goals of Alice are empowering users and having them in control, configuration needs special attention. Giving users 1000 options is not empowering; it is overwhelming.
-
-So I propose we do it in layers, where each layer becomes more complex and specific.
-1. The why layer.
-2. The what layer.
-3. The how layer.
-4. Tuning layer.
-
-## The why layer.
-This asks: Why are you using Alice? Have a few high-level options and contexts, like:
-- I am just looking around.
-- Personal assistant in private settings.
-- Personal assistant in a work setting.
-- Team assistant.
-
-The options here should be few and simple, but high impact with sane defaults.
-
-## The what layer.
-This layer is all about what the user wants to do with Alice. What should it connect to? What data should it use? What services should it integrate with?
-
-The options here should focus on outcomes for the user, not how it is done.
-
-## The how layer.
-At this layer, the user wants to configure how Alice works and how things are done. This is the layer where we can really show the complexity of the system. A playground for the power users.
-
-## The tuning layer.
-This layer is primarily for developers and operators who want to tweak and tune the system. Here we can go nuts with the configuration and have all the knobs and levers to tweak the system. Actually, here more is better.
-
-## Transparency and trust.
-Alice should not keep secrets from the user. But, as with configuration, we need to be careful not to overwhelm the user. Pages and pages of raw JSON are not transparent; it's hiding in plain sight.
-
-We should use the same layered approach as with configuration, where the user can drill down into more and more details, but should always start with a simple overview.
-1. The what layer.
-2. The why layer.
-3. The how layer.
-4. Debugging layer.
-
-## The what layer.
-A simple explanation of what happened. Use LLM to simplify and summarize the events. This is the layer that should be shown to the user by default. It should be simple and easy to understand. No deep knowledge of the system should be needed to understand it.
-
-## The why layer.
-The same information as the what layer, but now generated by the system from logs, in a very dry, matter-of-fact way. But still understandable and reasonably high level.
-
-This could be the different prompts that the LLM generated while reasoning, the datasets it used, and the steps it took to come to a conclusion.
-
-## The how layer.
-Show everything that the system did: all the prompts, system prompts, all the generated data, and all the steps it took. Nothing is hidden from the user. This is to help the user debug why the assistant did something unexpected.
-
-## Debugging layer.
-The raw events, with the raw data as the system saw it. No formatting or processing. This is the layer for the developers and operators who want to see the raw data and events and debug the system.
-
-## Timeline for implementation.
-
-### Dogfooding.
-At first, there is only the developer as a user. They are already perfectly empowered and do not need any help with configuration or information about what is going on. So the first version of Alice will not have any of the configuration or transparency layers.
-
-### The first set of users.
-The first set of users will most likely be highly technical individuals who are familiar with the developer. We can start to look into the configuration and transparency, but do not sweat it.
-
-### The far future.
-We may never get to the point where we need to implement the full configuration and transparency layers. But we should make decisions with them in mind. Bolting on something like this after the fact is a herculean task.
+### It's out there.
+Now we need to buckle down and focus on the core vision. We need to get the configuration and transparency right. That is way more important than adding new features. We need to make sure that the user is in control, can see what is going on, and can configure Alice to their liking.
