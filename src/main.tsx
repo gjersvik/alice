@@ -1,9 +1,8 @@
-import '@awesome.me/webawesome/dist/styles/webawesome.css';
-
-import { Action, initCommands, initState, reducer, State } from './state';
+import { Action, initCommands, initState, reducer } from './state';
 import Channel from './channel';
 import Commander from './command';
 import App from './view/app';
+import { createRoot } from 'react-dom/client';
 
 
 async function main() {
@@ -15,15 +14,14 @@ async function main() {
 
     let state = initState();
 
-    const app = new App();
-    app.state = state;
-    app.dispatch = (action: Action) => {
+    function dispatch(action: Action) {
         if (!uiChannel.trySend(action)) {
             console.error("UI channel is full, dropping action:", action);
         }
-    };
+    }
 
-    document.body.appendChild(app);
+    const root = createRoot(document.getElementById('app')!);
+    root.render(<App state={state} dispatch={dispatch} />);
 
     while (true) {
         // Wait for next action
@@ -57,7 +55,7 @@ async function main() {
         }
 
         // Update the state to render the chnanges
-        app.state = state;
+        root.render(<App state={state} dispatch={dispatch} />);
     }
 }
 
