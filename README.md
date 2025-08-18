@@ -1,56 +1,48 @@
 # Alice
-Personal AI assistant that learns from you and helps you.
+Alice is a personal Persistent AI Agent, with a team of role-based agents to assist you in your daily or working life.
+
+## Vision
+Alice aims to address a few problems I see with current AI agents on the market today.
+
+### Persistent knowledge needs to work for humans and traditional software too.
+There is a problem that occurs when you feed a statistical model like an LLM with its own output. It can get stuck on random patterns, and when that happens, it's very hard to get it out of that rut. The normal solution is just to start a new chat with fresh context. But this do not work when you want an system to remeber and learn. To make this work, you need a human to be able to change what the AI knows, and have that be easy. Reading through months of chat logs is not going to work, and humans can't read vectors at all.
+
+There is also a problem that the LLM can't keep secrets. Any information it may have access to has a non-zero chance of being used in any given reply. So a traditional software system needs to be able to keep track of what information is appropriate to give to an LLM at any given time. And the same problem again: software can't read chat logs or vectors.
+
+My idea is that a Knowledge Graph can be a meeting point between LLMs, humans, and software.
+ * The LLM can propose changes to the knowledge graph from chat logs and user input.
+ * The human can read and edit the knowledge graph, from small corrections ("this relationship is wrong") to major changes ("forget everything about this project").
+ * The software can maintain metadata and logically traverse relations, perform cleanup and maintenance, and limit the results based on its own context.
+
+Knowledge graphs may not work. They may become just a giant mess of data. LLMs may not be able to use them. It may not be possible to model knowledge in a way software can reason about.
+
+### Workflow Engine
+The current trend is to empower LLMs to do tasks on their own, and combine that with humans' tendency to just allow all to get the job done now. We have giant security and safety issues on our hands. It's not so bad when each request is independent and stateless, and users need to add capabilities as needed. But when you want more persistent agents, and you want them to work on important stuff where failure is not an option.
+
+My idea is to have the AI propose a solution that the user can review and edit, and then the solution is run in a workflow engine, where traditional software can make sure everything is right, properly logged, and auditable. So the LLM and humans can focus on what needs to be done, and the workflow engine can focus on how to do it.
+
+Humans are generally better at seeing when something is wrong than at seeing what the possible future results may be. And I think this may just be a better way to handle security and safety.
+
+One of the traditional issues with workflow engines is that they are flaky. If the world changes only a little bit, the workflow often fails, and humans have to maintain the workflows. If we allow the LLM the first pass at fixing the workflow, humans may just need a quick review. Also, this flakiness can be an asset. When a crisis happens, you want the AI agents to just stop and not do anything, instead of "intelligently" trying to fix the small task it sees and making the bigger issue worse.
 
 ## Getting Started
 
-This is currently a frontend-only app using Vite. Run it with:
-`npm install` and `npm run dev`
+Right now, your guess is as good as mine. As long as I am in the "find the idea" phase, this repo will be very messy, with half-working code and failed experiments.
 
-## Current Status
-Not even an idea—more like the idea of an idea.
+## High-Level Roadmap
+### Find the Idea
 
-## Vision
-Alice is a personal AI assistant that remembers and learns from you. It can do tasks for you, but you are in control.
+The road from having an idea of an idea to actually having an idea is long and winding. So there will be many false starts and rewrites. And I need to learn a lot of new things about AI agents, agentic AI (yes, there is a difference), and how to work with LLMs and chat workflows. It's hard to know when this part is done and it's not just another false start.
 
-### Local First, Private First
-You can run Alice completely in the browser without any backend. It starts out as private as possible. You make an active choice to trade privacy for convenience by connecting to backends and integrations.
+At the end of this phase, I should have a persistent AI agent working with role-based agents, using the current best practices, without the features I think an AI agent needs.
 
-- You can run in the browser only.
-- You can host the backend yourself.
-- You can use a hosted solution in full or in part.
+### Proof of Concept
+Try to implement the Knowledge Graph and the Workflow Engine as plugins to the running AI agent system I am having, to test out if the ideas work and what it will take to make them work.
 
-### The AI Can Only Propose
-The AI has no access or ability to do anything directly. It can only propose solutions that you can accept, edit, or reject. The solution is then run in a workflow engine that has no "intelligence."
+By the end of this phase, I should have something that can scratch my own itch and do the things I want it to do. It may have four different UIs that are in no way built to work together, but it should be able to do the things I want it to do.
 
-### Nothing Up My Sleeve
-You can see and edit what the AI knows. If you get a weird result, you can review every step of your reply, all the system prompts, user prompt and data.
-
-## Architecture
-
-### AI Runtime
-Built on top of an LLM. Has short-term memory in the form of full-text search over recent chat logs, and long-term understanding in the form of a knowledge graph.
-
-When a user sends a prompt, the runtime will roughly follow this high-level pipeline:
-1. Use the LLM to extract keywords from the user prompt for both full-text and knowledge graph search.
-2. Run database queries on both the chat log and knowledge graph to find the most relevant results.
-3. Use the LLM to summarize and rewrite the database results into text.
-4. Add the text as more context and create the full prompt to give to the chat LLM.
-5. Save the user prompt and chat reply in the chat log.
-
-Occasionally, either triggered by the user or automatically, the AI will "go to sleep" and turn the chat log and other user-added context into understanding. This process roughly follows these steps:
-1. Find out what context can be disregarded, using database queries and LLM assistance.
-2. Summarize the remaining data using the LLM.
-3. Identify the main knowledge entities in the text.
-4. Have the LLM compare what it knows with the text and propose changes.
-5. Apply the changes in a way that is easy to revert.
-
-### Workflow Engine
-When the assistant needs to affect the real world, it will do so using an "If This Then That" workflow. How this will work in practice is still a bit fuzzy, but here are the main requirements:
-
-* Needs to be able to be retried without side effects.
-* It should be easy for an LLM to generate new workflows.
-* It must be easy for a human to create, edit, and review workflows.
-* It must be easy to add new events and actions to the engine (plugins).
+### Proof of Value
+Start work on the real system. Start with the core workflow engine, but now make it support multiple users. And make sure the new components work with the janky system I have, so that it is not a big bang rewrite.
 
 ## Contributions
 
