@@ -18,7 +18,30 @@ services:
     ports:
       - "11434:11434"
     restart: unless-stopped
+    networks:
+      - ollama-net
+  
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main  # Use the latest main image
+    container_name: open-webui
+    depends_on:
+      - ollama
+    ports:
+      - "8080:8080"
+    volumes:
+      - open-webui-data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    networks:
+      - ollama-net
+    restart: unless-stopped
 
 volumes:
   ollama_data:
     driver: local
+  open-webui-data:
+    driver: local
+
+networks:
+  ollama-net:
+    driver: bridge
