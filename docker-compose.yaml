@@ -1,0 +1,24 @@
+services:
+  ollama:
+    build:
+      context: .
+      dockerfile: ollama.dockerfile
+    container_name: ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ollama_data:/home/ubuntu/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+    driver: local
