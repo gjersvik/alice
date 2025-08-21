@@ -37,6 +37,9 @@ I have a runbook I will try to keep up to date with the current state of the pro
 See [Runbook](./runbook.md).
 
 ## High-Level Roadmap
+
+[Research Architecture](./research-architecture.md) - The architecture for the first version of Alice that exists to validate the ideas and concepts.
+
 ### Find the Idea
 
 The road from having an idea of an idea to actually having an idea is long and winding. So there will be many false starts and rewrites. And I need to learn a lot of new things about AI agents, agentic AI (yes, there is a difference), and how to work with LLMs and chat workflows. It's hard to know when this part is done and it's not just another false start.
