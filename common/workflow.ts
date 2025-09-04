@@ -67,12 +67,15 @@ export class WillTimeout extends Error {
  */
 export type Event = JsonObject;
 
-/** The context for a workflow run.
- * Workflow steps needs to pass this context around.
+/** The metadata for a workflow run. 
+ * Metadata is used to pass information from the workflow engine to the actions.
+ * Not now but in the future tings like users and other secuerty related information may be added.
  * 
- * Actions can save this context for later use. Log in progress.
+ * METADATA IS READ-ONLY.
+ * Any changes to the metadata will result in securety issues.
+ * So any implementation of metadata must be deep frozen. Before its passed to the workflow or actions.
  */ 
-export interface RunContext {
+export interface Metadata {
     /** The unique id for this workflow run. 
      * Use mainly for action to cache results.
     */
@@ -103,7 +106,7 @@ export interface RunContext {
 /** Actions repersent what the workflow engine can do. What external servcies it can call.
  * 
  * ACTION MUST BE IDEMPOTENT.
- * If the action is called multiple times with the same input and context.id it must return the same result.
+ * If the action is called multiple times with the same input and meta.id it must return the same result.
  * The action may throw exeptions to tell the workflow engine to retry later or that it will timeout.
  * Even after a successfull return. If say the cache datastore is down or overloaded.
  * 
@@ -115,7 +118,7 @@ export interface RunContext {
  * If you do not know how long the action will take you can throw a WaitUntil with the timeout if set. Or when you belive ist must be done.
  * Then call the wake function on the context when you have a result.
  */
-export type Action = (context: RunContext, input: JsonValue) => JsonValue 
+export type Action = (meta: Metadata, input: JsonValue) => JsonValue 
 
 /** 
  * The workflow runtime will call this function when a run is archived.
@@ -128,8 +131,7 @@ export interface Invalidation {
     invalidate(prefix: string): void;
 }
 
-/** A workflow is very genericly just a function that takes a RunContext and some arguments.
- * And returns a value.
+/** Any workflow that is registered with the workflow engine must follow this shape.
  * 
  * The workflow must be a pure function. And must not have any side effects.
  * Gernaly a workflow shuld not need look at the context. Just pass it around to sub workflows and actions.
@@ -141,11 +143,12 @@ export interface Invalidation {
  * 
  * Running sub workflows is serial require no exseptions trickery. The normal exeption handling will just work.
  * 
- * This defines a dynamic workflow. That is regisered with a name and can used in user defined workflows.
- * They need to verify that the input parameters are correct. And can't trust TypeScript types.
+ * Sub workflows that do not started by the workflow engine. Do not need to have this shape. And should define their own shape.
+ * But the need to follow the same rules as other workflows. As in bering pure and idempotent.
  * 
- * Internal workflows can be normal functions that are called directly. Following the same rules. But not neesary this shape.
- * 
- * Dynamic workflows shuld be overloaded to take specific parameters. To make it easy to use from other internal workflows.
+ * @param meta The metadata for the workflow run. Workflows shuld gernaly just pass this around to actions and sub workflows.
+ * @param input The input data for the workflow run. This is the data that is passed to the workflow when it is started.
+ * @param structure The structure of the workflow. Right now this is just null, but it may be used later to define dynamic workflows.
+ * @returns The output data for the workflow run. This is the data that is returned by the workflow when it is completed.
  */
-export type Workflow = (context: RunContext, ...args: unknown[]) => unknown;
+export type Workflow = (meta: Metadata, input: JsonValue, structure: JsonValue) => JsonValue;
