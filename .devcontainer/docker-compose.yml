@@ -1,7 +1,7 @@
 name: alice-dev
 services:
   alice:
-    image: mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm
+    image: mcr.microsoft.com/devcontainers/rust:bookworm
     volumes:
       - ..:/workspace:cached  # Mount project root to /workspace
     working_dir: /workspace
@@ -15,6 +15,18 @@ services:
       - "8000:8000"
     volumes:
       - surrealdb-data:/mydata
-    
+
+  ollama:
+    build:
+      context: .
+      dockerfile: ollama.dockerfile
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ollama_data:/home/ubuntu/.ollama
+    ports:
+      - "11434:11434"
+ 
 volumes:
   surrealdb-data:
+  ollama_data:

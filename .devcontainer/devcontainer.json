@@ -11,6 +11,9 @@
 	"features": {
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1.6.3": {
 			"mobyBuildxVersion": "0.25.0"
+		},
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "22"
 		}
 	}
 

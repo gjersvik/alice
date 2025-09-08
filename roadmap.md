@@ -1,11 +1,11 @@
-# Runbook a new start.
+# Roadmap a new start.
 
 I want to get back to coding, with a focus on fun and learning. I will clean up repo for a more focused project. 
 
 ## 1. A new aretcture
 I want to move to a TypeScript/React frontend and a Rust backend. That implment a workflow engine. So I will remove WebLLM and use Ollama behind a Rust backend.
 
-- [ ] Add rust and Ollama to the dev container.
+- [x] Add rust and Ollama to the dev container.
 - [ ] Init a new Rust project with axum. 
 - [ ] Build a minimal workflow engine that only know the chat workflow.
 - [ ] Update the ui to use the new chat workflow.
@@ -15,7 +15,7 @@ After the new architecture there is 3-4 different versions of alice in the repo.
 
 - [ ] Update the README to reflect the new architecture.
 - [ ] Remove the docker-compose and dockerfiles.
-- [ ] Consolidate into one aretecture documentation.
+- [ ] Consolidate into one architecture documentation.
 - [ ] Create a clean new project sturture.
 - [ ] One last README pass with a simple get started guide.
 
