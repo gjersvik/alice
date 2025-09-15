@@ -1,5 +1,5 @@
-import { Typography } from '@equinor/eds-core-react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 async function main() {
     const rootElement = document.getElementById('alice-root');
@@ -8,7 +8,7 @@ async function main() {
         return;
     }
     const root = createRoot(rootElement);
-    root.render(<Typography variant="h1">Hello, Alice!</Typography>);
+    root.render(<App />);
 }
 
 main().catch(console.error);
