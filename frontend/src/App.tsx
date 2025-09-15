@@ -1,5 +1,6 @@
-import { Typography } from "@equinor/eds-core-react";
+import { TopBar } from "@equinor/eds-core-react";
 import styled, { createGlobalStyle } from "styled-components";
+import ChatInput from "./ChatInput";
 
 const GlobalStyles = createGlobalStyle`
     html, body, #alice-root {
@@ -22,34 +23,24 @@ const GlobalStyles = createGlobalStyle`
 export default function App() {
   return <>
     <GlobalStyles />
-    <StyledHeader />
-    <StyledMain />
+    <Header>
+        <TopBar.Header>
+            Alice - Chat
+        </TopBar.Header>
+    </Header>
+    <Main>
+        <ChatLog />
+        <ChatInput />
+    </Main> 
   </>;
 }
 
-const StyledHeader = styled(Header)`
+const Header = styled(TopBar)`
   grid-area: header;
-  background-color: lightgray;
 `;
 
-const StyledMain = styled(Main)`
-  grid-area: main;
-`;
-
-function Header({className}: {className?: string}) {
-  return <header className={className}>
-    <Typography variant="h1">Alice</Typography>
-  </header>;
-}
-
-function Main({className}: {className?: string}) {
-    return <Container className={className}>
-        <ChatLog />
-        <MessageInput />
-    </Container> 
-}
-
-const Container = styled.div`
+const Main = styled.div`
+    grid-area: main;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -65,13 +56,4 @@ function ChatLog() {
 
 const MessageList = styled.div`
     flex: 1;
-`;
-
-function MessageInput() {
-    return <InputContainer>
-    </InputContainer>;
-}
-
-const InputContainer = styled.div`
-    display: flex; 
 `;
