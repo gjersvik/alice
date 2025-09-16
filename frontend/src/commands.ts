@@ -22,7 +22,16 @@ export default class Commander {
     }
 
     private async sendChat(cmd: Cmd.SendChat): Promise<void> {
-        let cmds = cmd.onReply("There is no LLM yet so don't know what too say too that.");
+        let response =  await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: cmd.text
+        });
+        let text = await response.text();
+
+        let cmds = cmd.onReply(text);
         this.sendMsg(cmds);
     }
 
