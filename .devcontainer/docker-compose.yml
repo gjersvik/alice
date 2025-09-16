@@ -6,3 +6,17 @@ services:
       - ..:/workspace:cached  # Mount project root to /workspace
     working_dir: /workspace
     command: sleep infinity
+
+  ollama:
+    build:
+      context: .
+      dockerfile: ollama.dockerfile
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - ollama_data:/home/ubuntu/.ollama
+    ports:
+      - "11434:11434"
+
+volumes:
+  ollama_data:

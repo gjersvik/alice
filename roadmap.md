@@ -10,7 +10,7 @@ Have simple frontend that can send chat messages to Ollama behind minimal backen
  - [x] Setup rust axum.
  - [x] Simple fake endpoint. 
  - [x] Have frontend talk to backend.
- - [ ] Setup Ollama.
+ - [x] Setup Ollama.
  - [ ] Have backend use Ollama.
  - [ ] Streem events to frontend.
  - [ ] Force stop feature.
