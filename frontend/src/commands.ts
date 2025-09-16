@@ -22,7 +22,7 @@ export default class Commander {
     }
 
     private async sendChat(cmd: Cmd.SendChat): Promise<void> {
-        let cmds = cmd.onReply("There is no LLM yet so don't know what ti say to that.");
+        let cmds = cmd.onReply("There is no LLM yet so don't know what too say too that.");
         this.sendMsg(cmds);
     }
 

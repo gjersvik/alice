@@ -6,7 +6,7 @@ The main goal now is have an infinite chatlog. Using RAG or any other tech so th
 Have simple frontend that can send chat messages to Ollama behind minimal backend.
 
  - [x] Setup a React + Equinor design system using Vite.
- - [ ] Create a simple send chat UI that call fake data.
+ - [x] Create a simple send chat UI that call fake data.
  - [ ] Setup rust AXUM.
  - [ ] Simple fake endpoint. 
  - [ ] Have frontend talk to backend.

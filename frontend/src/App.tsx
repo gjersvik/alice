@@ -2,6 +2,7 @@ import { TopBar } from "@equinor/eds-core-react";
 import styled, { createGlobalStyle } from "styled-components";
 import ChatInput from "./ChatInput";
 import { Dispatch, State } from "./state";
+import ChatLog from "./ChatLog";
 
 const GlobalStyles = createGlobalStyle`
     html, body, #alice-root {
@@ -22,7 +23,6 @@ const GlobalStyles = createGlobalStyle`
 `;
 
 export default function App({state, dispatch}: {state: State, dispatch: Dispatch}) {
-    console.log(state);
   return <>
     <GlobalStyles />
     <Header>
@@ -31,7 +31,7 @@ export default function App({state, dispatch}: {state: State, dispatch: Dispatch
         </TopBar.Header>
     </Header>
     <Main>
-        <ChatLog />
+        <ChatLog state={state} />
         <ChatInput dispatch={dispatch} />
     </Main> 
   </>;
@@ -49,13 +49,4 @@ const Main = styled.div`
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
-`;
-
-function ChatLog() {
-    return <MessageList>
-    </MessageList>;
-}
-
-const MessageList = styled.div`
-    flex: 1;
 `;
