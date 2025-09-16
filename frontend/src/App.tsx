@@ -1,7 +1,7 @@
 import { TopBar } from "@equinor/eds-core-react";
 import styled, { createGlobalStyle } from "styled-components";
 import ChatInput from "./ChatInput";
-import { Dispatch } from "./state";
+import { Dispatch, State } from "./state";
 
 const GlobalStyles = createGlobalStyle`
     html, body, #alice-root {
@@ -21,7 +21,8 @@ const GlobalStyles = createGlobalStyle`
     }
 `;
 
-export default function App({dispatch}: {dispatch: Dispatch}) {
+export default function App({state, dispatch}: {state: State, dispatch: Dispatch}) {
+    console.log(state);
   return <>
     <GlobalStyles />
     <Header>
