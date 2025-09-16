@@ -8,7 +8,7 @@ Have simple frontend that can send chat messages to Ollama behind minimal backen
  - [x] Setup a React + Equinor design system using Vite.
  - [x] Create a simple send chat UI that call fake data.
  - [x] Setup rust axum.
- - [ ] Simple fake endpoint. 
+ - [x] Simple fake endpoint. 
  - [ ] Have frontend talk to backend.
  - [ ] Setup Ollama.
  - [ ] Have backend use Ollama.
