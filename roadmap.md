@@ -11,7 +11,7 @@ Have simple frontend that can send chat messages to Ollama behind minimal backen
  - [x] Simple fake endpoint. 
  - [x] Have frontend talk to backend.
  - [x] Setup Ollama.
- - [ ] Have backend use Ollama.
+ - [x] Have backend use Ollama.
  - [ ] Streem events to frontend.
  - [ ] Force stop feature.
  - [ ] Update readme.

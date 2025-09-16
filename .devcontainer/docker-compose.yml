@@ -17,6 +17,7 @@ services:
       - ollama_data:/home/ubuntu/.ollama
     ports:
       - "11434:11434"
+    runtime: nvidia
 
 volumes:
   ollama_data:
