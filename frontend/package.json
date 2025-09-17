@@ -17,6 +17,7 @@
     "@equinor/eds-core-react": "^0.49.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "sse.js": "^2.7.1",
     "styled-components": "^6.1.19"
   }
 }

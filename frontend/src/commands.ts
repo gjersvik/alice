@@ -1,10 +1,16 @@
 import { Dispatch, Msg } from "./state";
+import { SSEvent, SSE } from "sse.js";
+
+export type ChatEvent = {
+    chunk: string,
+    done: boolean,
+}
 
 export namespace Cmd {
     export type SendChat = {
         type: 'sendChat',
         text: string,
-        onReply: (reply: string) => Msg[]
+        onChunk: (reply: ChatEvent) => Msg[]
     }
 
     export type Any = SendChat;
@@ -22,17 +28,17 @@ export default class Commander {
     }
 
     private async sendChat(cmd: Cmd.SendChat): Promise<void> {
-        let response =  await fetch('/api/chat', {
-            method: 'POST',
+        let source = new SSE('/api/chat', {
             headers: {
                 'Content-Type': 'text/plain'
             },
-            body: cmd.text
+            payload: cmd.text
         });
-        let text = await response.text();
-
-        let cmds = cmd.onReply(text);
-        this.sendMsg(cmds);
+        source.onmessage = (e: SSEvent ) => {
+            let data: ChatEvent = JSON.parse(e.data);
+            let msgs = cmd.onChunk(data);
+            this.sendMsg(msgs);
+        }
     }
 
     private sendMsg(msg: Msg[]): void {

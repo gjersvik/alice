@@ -5,6 +5,10 @@ edition = "2024"
 
 [dependencies]
 axum = "0.8.4"
-ollama-rs = "0.3.2"
+futures = "0.3.31"
+ollama-rs = {version = "0.3.2", features = ["stream"] }
 tokio = { version = "1.47.1", features = ["full"] }
+tokio-stream = "0.1.17"
+serde = { version = "1.0.188", features = ["derive"] }
+
 

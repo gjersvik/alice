@@ -1,8 +1,8 @@
-import { Cmd } from "./commands";
+import { ChatEvent, Cmd } from "./commands";
 
 export type Msg = 
     { type: 'sendChat'; text: string } |
-    { type: 'receiveChat'; text: string }
+    { type: 'receiveChunk'; text: string }
 
 export type Dispatch = (msg: Msg) => void;
 
@@ -27,22 +27,32 @@ export function update(state: State, msg: Msg): [State, Cmd.Any[]] {
     switch (msg.type) {
         case 'sendChat': {
             const newMessage: ChatMessage = { role: 'user', content: msg.text };
+            const newReply: ChatMessage = { role: 'assistant', content: '' };
             const newState: State = {
                 ...state,
-                chat: [...state.chat, newMessage],
+                chat: [...state.chat, newMessage, newReply],
             };
             const sendChat: Cmd.SendChat = { 
                 type: 'sendChat',
                 text: msg.text,
-                onReply: (reply: string) => [{ type: 'receiveChat', text: reply }]
+                onChunk: (event: ChatEvent) => [{ type: 'receiveChunk', text: event.chunk }]
             };
             return [newState, [sendChat]];
         }
-        case 'receiveChat': {
-            const newMessage: ChatMessage = { role: 'assistant', content: msg.text };
+        case 'receiveChunk': {
+            const chat = [...state.chat];
+            const lastIndex = chat.length - 1;
+            if (lastIndex >= 0 && chat[lastIndex].role === 'assistant') {
+                const lastMessage = chat[lastIndex];
+                const updatedMessage: ChatMessage = {
+                    ...lastMessage,
+                    content: lastMessage.content + msg.text,
+                };
+                chat[lastIndex] = updatedMessage;
+            }
             const newState: State = {
                 ...state,
-                chat: [...state.chat, newMessage],
+                chat: chat,
             };
             return [newState, []];
         }

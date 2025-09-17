@@ -12,7 +12,7 @@ Have simple frontend that can send chat messages to Ollama behind minimal backen
  - [x] Have frontend talk to backend.
  - [x] Setup Ollama.
  - [x] Have backend use Ollama.
- - [ ] Streem events to frontend.
+ - [x] Streem events to frontend.
  - [ ] ~~Force stop feature.~~ Ollama does not support it. Will chnage model runner later at some point.
  - [ ] Update readme.
 
