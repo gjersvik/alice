@@ -19,7 +19,7 @@ Have simple frontend that can send chat messages to Ollama behind minimal backen
 ## 2. Presistance.
 Have the backend store the chat in SurealDB.
 
- - [ ] Have backend store chat in memory.
+ - [x] Have backend store chat in memory.
  - [ ] Create endpoints so that frontend can get chat history.
  - [ ] Have the frontend use the server as source of truth.
  - [ ] Setup SurrealDB.

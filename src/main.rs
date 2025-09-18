@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use axum::{
     extract::State, response::{sse, Sse}, routing::{get, post}, Router
@@ -12,11 +12,12 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 #[derive(Clone)]
 struct AppState {
     ollama: Arc<Ollama>,
+    chat_history: Arc<Mutex<Vec<ChatMessage>>>,
 }
 
 static MODEL_NAME: &str = "mistral:7b";
 
-static SYSTEM_PROMPT: &str = r#"You are Alice a helpfull assistant. Awnser in a short more coversasinal style. You are in a chat with the user."#;
+static SYSTEM_PROMPT: &str = r#"You are Alice a helpful assistant. Answer in a short more conversational style. You are in a chat with the user."#;
 
 #[tokio::main]
 async fn main() {
@@ -27,7 +28,12 @@ async fn main() {
         println!("Model pull event: {:?}", event);
     }
 
-    let state = AppState { ollama: Arc::new(ollama) };
+    let state = AppState { 
+        ollama: Arc::new(ollama),
+        chat_history: Arc::new(Mutex::new(vec![
+            ChatMessage::new(MessageRole::System, SYSTEM_PROMPT.to_string())
+        ])),
+    };
 
     // build our application with a single route
     let app = Router::new()
@@ -48,14 +54,19 @@ struct ChatEvent{
 
 async fn post_chat(State(state): State<AppState>, body: String) -> Sse<impl Stream<Item = Result<sse::Event, OllamaError>>> {
     let ollama = state.ollama.clone();
+    let chat_history = state.chat_history.clone();
 
     let (tx, rx) = mpsc::unbounded_channel::<Result<ChatEvent,OllamaError>>();
 
     tokio::spawn(async move {
-        let request = ChatMessageRequest::new(MODEL_NAME.to_string(), vec![
-            ChatMessage::new(MessageRole::System, SYSTEM_PROMPT.to_string()),
-            ChatMessage::new(MessageRole::User, body),
-        ]);
+        let request = {
+            let mut history = chat_history.lock().unwrap();
+            history.push(ChatMessage::new(MessageRole::User, body.clone()));
+
+            println!("Chat history: {:?}", history);
+
+            ChatMessageRequest::new(MODEL_NAME.to_string(), history.clone())
+        };
 
         let response = ollama.send_chat_messages_stream(request).await;
         let mut stream = match response {
@@ -66,14 +77,21 @@ async fn post_chat(State(state): State<AppState>, body: String) -> Sse<impl Stre
             }
         };
 
+        let mut full_response = String::new();
+
         while let Some(chat_res) = stream.next().await {
             if let Ok(chat_msg) = chat_res {
                 let chat_event = ChatEvent {
                     chunk: chat_msg.message.content,
                     done: chat_msg.done,
                 };
+                full_response.push_str(&chat_event.chunk);
                 let _ = tx.send(Ok(chat_event));
             }
+        }
+        {
+            let mut history = chat_history.lock().unwrap();
+            history.push(ChatMessage::new(MessageRole::Assistant, full_response));
         }
     });
 
