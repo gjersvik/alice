@@ -14,7 +14,7 @@ Have simple frontend that can send chat messages to Ollama behind minimal backen
  - [x] Have backend use Ollama.
  - [x] Streem events to frontend.
  - [ ] ~~Force stop feature.~~ Ollama does not support it. Will chnage model runner later at some point.
- - [ ] Update readme.
+ - [x] Update readme.
 
 ## 2. Presistance.
 Have the backend store the chat in SurealDB.
