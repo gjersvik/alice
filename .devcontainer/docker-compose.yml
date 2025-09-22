@@ -7,6 +7,15 @@ services:
     working_dir: /workspace
     command: sleep infinity
 
+  surrealdb:
+    build:
+      context: .
+      dockerfile: surrealdb.dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - surrealdb-data:/mydata
+
   ollama:
     build:
       context: .
@@ -20,4 +29,5 @@ services:
     runtime: nvidia
 
 volumes:
+  surrealdb-data:
   ollama_data:
