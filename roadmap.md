@@ -16,25 +16,28 @@ Have simple frontend that can send chat messages to Ollama behind minimal backen
  - [ ] ~~Force stop feature.~~ Ollama does not support it. Will chnage model runner later at some point.
  - [x] Update readme.
 
-## 2. Presistance.
-Have the backend store the chat in SurealDB.
+## 2. Presistance and peroalisation.
+Turn the system into a full featured AI chat app. With multi chat histories saved.
+* Etch user can have multiple Agents.
+* Agents are isolated from each other.
+* Etch Agent can have multiple chat histories.
+* Both Agents and Chats have metadata.
+
+So the path is /api/v1/agent/{agent_name}/chat/{chat_id}
 
  - [x] Have backend store chat in memory.
- - [ ] Create endpoints so that frontend can get chat history.
- - [ ] Have the frontend use the server as source of truth.
  - [ ] Setup SurrealDB.
- - [ ] Design the schema for chat log.
- - [ ] Use in SurealDB to store chat.
+ - [ ] Create schema for chat and agent in SurrealDB.
+ - [ ] Use in SurealDB to store chat. (Hardcoded agent and chat for now.)
+ - [ ] List agents endpoint and UI.
+ - [ ] Create agent endpoint and UI.
+ - [ ] Delete endpoint and UI.
+ - [ ] List chats endpoint and UI.
+ - [ ] Create chat endpoint and UI.
+ - [ ] List messages endpoint and UI.
+ - [ ] Chat with chat endpoint and UI.
+ - [ ] Delete chat endpoint and UI.
  - [ ] Update readme.
-
-## 3. Peroalisation.
-The backend need to suport multiple Agents. I at least need to seperate beween development and daily driver. Shuld also be able to give the Agent a name and give it my name and not have it hardcoded as Alice. 
-
- - [ ] Add schema for Agent in SurrealDB.
- - [ ] Update current endpoint with agent name. Front and backend.
- - [ ] CRUD endpoints for Agent.
- - [ ] UI for creating and selecting Agent.
- - [ ] Update readme.
-
-## 4. Seatch and retrive. 
+ 
+## 3. Seatch and retrive. 
 Have a system that allows the Agent to seatch in history and only collect the relevant facts. This turns chat into multi step workflow.
