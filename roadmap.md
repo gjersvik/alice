@@ -27,8 +27,7 @@ So the path is /api/v1/agent/{agent_name}/chat/{chat_id}
 
  - [x] Have backend store chat in memory.
  - [x] Setup SurrealDB.
- - [ ] Create schema for chat and agent in SurrealDB.
- - [ ] Use in SurealDB to store chat. (Hardcoded agent and chat for now.)
+ - [x] Create schema for chat and agent in SurrealDB.
  - [ ] List agents endpoint and UI.
  - [ ] Create agent endpoint and UI.
  - [ ] Delete endpoint and UI.
