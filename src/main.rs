@@ -1,11 +1,12 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, LazyLock, Mutex};
 
 use axum::{
-    extract::State, response::{sse, Sse}, routing::{get, post}, Router
+    extract::State, http::StatusCode, response::{sse, IntoResponse, Response, Sse}, routing::{get, post}, Json, Router
 };
 use ollama_rs::{error::OllamaError, generation::chat::{request::ChatMessageRequest, ChatMessage, MessageRole}, Ollama};
 use futures::{Stream, StreamExt};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use surrealdb::{engine::any::Any, opt::auth::Root, RecordId, Surreal};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
@@ -19,8 +20,39 @@ static MODEL_NAME: &str = "mistral:7b";
 
 static SYSTEM_PROMPT: &str = r#"You are Alice a helpful assistant. Answer in a short more conversational style. You are in a chat with the user."#;
 
+static DB: LazyLock<Surreal<Any>> = LazyLock::new(Surreal::init);
+
+struct AppError(anyhow::Error);
+
+impl IntoResponse for AppError {
+    fn into_response(self) -> Response {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Something went wrong: {}", self.0),
+        )
+            .into_response()
+    }
+}
+
+impl<E> From<E> for AppError
+where
+    E: Into<anyhow::Error>,
+{
+    fn from(err: E) -> Self {
+        Self(err.into())
+    }
+}
+
 #[tokio::main]
 async fn main() {
+    // Initialize the SurrealDB client
+    DB.connect("ws://surrealdb:8000").await.unwrap();
+    DB.signin(Root {
+        username: "admin",
+        password: "playwithdata"
+    }).await.unwrap();
+    DB.use_ns("alice").use_db("alice").await.unwrap();
+
     // initialize the Ollama client
     let ollama = Ollama::new("http://ollama", 11434);
     let mut status_stream = ollama.pull_model_stream(MODEL_NAME.to_string(), false).await.unwrap();
@@ -38,6 +70,7 @@ async fn main() {
     // build our application with a single route
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
+        .route("/agents", get(get_agents))
         .route("/api/chat", post(post_chat))
         .with_state(state);
 
@@ -52,6 +85,7 @@ struct ChatEvent{
     done: bool,
 }
 
+#[axum::debug_handler]
 async fn post_chat(State(state): State<AppState>, body: String) -> Sse<impl Stream<Item = Result<sse::Event, OllamaError>>> {
     let ollama = state.ollama.clone();
     let chat_history = state.chat_history.clone();
@@ -102,4 +136,18 @@ async fn post_chat(State(state): State<AppState>, body: String) -> Sse<impl Stre
     });
 
     Sse::new(event_stream)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Agent {
+    id: RecordId,
+    name: String,
+    user: RecordId,
+    user_name: String,
+}
+
+#[axum::debug_handler]
+async fn get_agents() -> Result<Json<Vec<Agent>>, AppError> {
+    let agents: Vec<Agent> = DB.query("SELECT * from agents WHERE user = users:default").await?.take(0)?;
+    Ok(Json(agents))
 }

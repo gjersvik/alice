@@ -15,6 +15,13 @@
 		"ghcr.io/devcontainers/features/node:1": {
 			"version": "22"
 		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"fill-labs.dependi"
+			]
+		}
 	}
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

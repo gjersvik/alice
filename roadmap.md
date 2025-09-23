@@ -23,8 +23,6 @@ Turn the system into a full featured AI chat app. With multi chat histories save
 * Etch Agent can have multiple chat histories.
 * Both Agents and Chats have metadata.
 
-So the path is /api/v1/agent/{agent_name}/chat/{chat_id}
-
  - [x] Have backend store chat in memory.
  - [x] Setup SurrealDB.
  - [x] Create schema for chat and agent in SurrealDB.
@@ -36,6 +34,7 @@ So the path is /api/v1/agent/{agent_name}/chat/{chat_id}
  - [ ] List messages endpoint and UI.
  - [ ] Chat with chat endpoint and UI.
  - [ ] Delete chat endpoint and UI.
+ - [ ] Auto install schema on first run.
  - [ ] Update readme.
  
 ## 3. Seatch and retrive. 
